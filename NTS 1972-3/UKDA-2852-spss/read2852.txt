@@ -1,0 +1,21 @@
+UK DATA ARCHIVE DOCUMENTATION
+
+
+2852 - National Travel Survey, 1972-1973
+
+Conversion of data and documentation formats
+--------------------------------------------
+In June 2003 a series of SPSS setup files were created using the FILE TYPE NESTED
+FILE command in order to produce SPSS portable files at different levels.
+These files can be merged using the appropriate identifiers.
+
+
+Data and documentation notes
+-------------------------------
+Please note that there is a slight discrepancy between the printed 
+frequency figures within the documentation and those produced via the 
+data file.
+
+
+Notes from data delivery and post-order corrections
+---------------------------------------------------
