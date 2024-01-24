@@ -1,90 +1,59 @@
 # read file 
 
 library(dplyr)
-library(haven)
+library(forcats)
+# library(haven) # for reading spss files
 
 ind <- read.table("./NTS 1972-3/UKDA-2852-tab/tab/ind7273.tab",
                   header = TRUE) %>%
   janitor::clean_names()
 
 ind_clean = ind %>%
-  mutate(sex = factor(i11, labels = c("male", "female", "NA"))) %>%
+  mutate(sex = case_when(i11 == 1 ~"male", i11 == 2 ~"female", 
+                         i11 ==3 ~"NA"),
+         sex = factor(sex)) %>%
   relocate(sex, .after = i11) %>%
-  
-  # not working yet
-    mutate(age = factor(i9, 
-                        labels = c("1 year and under", 
-"2 years",
-"1 year and under",
-"2 years",
-"3 years",
-"4 years",
-"5 years",
-"6 years",
-"7 years",
-"8 years",
-"10 years",
-"11 years",
-"12 years",
-"13 years",
-"14 years",
-"15 years",
-"16 years",
-"17 years",
-"18 years",
-"19 years",
-"20 years",
-"21 years",
-"22 years",
-"23 years",
-"24 years",
-"25 years",
-"26 to 29",
-"30 to 39",
-"40 to 49",
-"50 to 59",
-"60 to 64",
-"65 to 69",
-"70+",
-"<3",
-"3-15",
-"15+"))) %>%
-relocate(age, .after = i9)
 
-++109. AGE OF PERSON
-Total
-1 year and under
-2 2 yeara
-3 3 yeare
-4 4 years
-5 5 yeara
-6 6 years
-7 7 years
-8 8 years
-9 9 yeara
-10 10 years
-11 11 yeare
-12 12 years
-13 13 yeara
-14 14 yeare
-15 15 years
-16 16 years
-17 17 yeare
-18 18 years
-19 19 yeara
-20 20 years
-21 21 years
-22 22 yeare
-23 23 yeara
-24 24 years
-25 25 yeare
-26 26 to 29
-27 30 to 39
-28 40 to 49
-29 50 to 59
-30 60 to 64
-31 65 to 69
-32 70 or over
-33 NA <3
-34 NA 3-15
-35 NA 15+
+      mutate(age = case_when(
+        i9 == 1 ~"1 year and under",
+        i9 == 2 ~"2 years",
+        i9 == 3 ~"3 years",
+        i9 == 4 ~"4 years",
+        i9 == 5 ~"5 years",
+        i9 == 6 ~"6 years",
+        i9 == 7 ~"7 years",
+        i9 == 8 ~"8 years",
+        i9 == 9 ~"9 years",
+        i9 == 10 ~"10 years",
+        i9 == 11 ~"11 years",
+        i9 == 12 ~"12 years",
+        i9 == 13 ~"13 years",
+        i9 == 14 ~"14 years",
+        i9 == 15 ~"15 years",
+        i9 == 16 ~"16 years",
+        i9 == 17 ~"17 years",
+        i9 == 18 ~"18 years",
+        i9 == 19 ~"19 years",
+        i9 == 20 ~"20 years",
+        i9 == 21 ~"21 years",
+        i9 == 22 ~"22 years",
+        i9 == 23 ~"23 years",
+        i9 == 24 ~"24 years",
+        i9 == 25 ~"25 years",
+        i9 == 26 ~"26 to 29",
+        i9 == 27 ~"30 to 39",
+        i9 == 28 ~"40 to 49",
+        i9 == 29 ~"50 to 59",
+        i9 == 30 ~"60 to 64",
+        i9 == 31 ~"65 to 69",
+        i9 == 32 ~"70+",
+        i9 == 33 ~"<3",
+        i9 == 34 ~"3-15",
+        i9 == 35 ~"15+"),
+         age = factor(age),
+        age = fct_relevel(age, c("2 years", "3 years", "4 years", "5 years",
+                           "6 years", "7 years", "8 years", "9 years"),
+                    after = 1),
+        age = fct_relevel(age, "3-15", after = 3)
+        ) %>%
+relocate(age, .after = i9)
