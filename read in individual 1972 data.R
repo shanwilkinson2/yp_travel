@@ -1,14 +1,15 @@
 # read file 
 
 library(dplyr)
-library(forcats)
-# library(haven) # for reading spss files
+
+#### individual details ##############
 
 ind <- read.table("./NTS 1972-3/UKDA-2852-tab/tab/ind7273.tab",
                   header = TRUE) %>%
   janitor::clean_names()
 
 ind_clean = ind %>%
+  rename(person_id = i1) %>%
   mutate(sex = case_when(i11 == 1 ~"male", i11 == 2 ~"female", 
                          i11 ==3 ~"NA"),
          sex = factor(sex)) %>%
