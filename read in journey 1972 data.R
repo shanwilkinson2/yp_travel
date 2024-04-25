@@ -44,7 +44,30 @@ jou_clean <- jou %>%
     "j30_why_not_vehicle" = "j30",
     "j31_mean_overall_speed" = "j31"
   ) %>%
-  mutate(
+  mutate(across(c(j2_land_use_origin, j4_land_use_dest), 
+                ~case_when(
+      .x == 1 ~"Home base",
+      .x == 2 ~"Temp residence",
+      .x == 3 ~"Industry + public utility",
+      .x == 4 ~"Building site",
+      .x == 5 ~"Retai1 trade",
+      .x == 6 ~"wholesale/warehouse depot",
+      .x == 7 ~"Office + public building",
+      .x == 8 ~"Services",
+      .x == 9 ~"Hospitals",
+      .x == 10 ~"Education",
+      .x == 11 ~"Traneport interchange",
+      .x == 12 ~"Recreation",
+      .x == 13 ~"Open space - develop",
+      .x == 14 ~"0pen epace - natural",
+      .x == 15 ~"Military",
+      .x == 16 ~"Prisons + borstals",
+      .x == 17 ~"Mining + quarrying",
+      .x == 18 ~"Other",
+      .x == 19 ~"DK/NA",
+      .x == 20 ~"DNA"
+    )),
+    
     j8_purpose = case_when(
      j8_purpose == 1 ~ "To/ from work",
       j8_purpose ==  2 ~ "In, course work",
@@ -52,7 +75,7 @@ jou_clean <- jou %>%
      j8_purpose == 4 ~ "Shopping",
      j8_purpose == 5 ~ "Personal business",
      j8_purpose == 6 ~ "Eating/drinking",
-     j8_purpose == 7 ~ "SpOrt (ADril)",
+     j8_purpose == 7 ~ "Sport (ADril)",
      j8_purpose == 8 ~ "sport (Watch)",
      j8_purpose == 9 ~ "sport (Part)",
      j8_purpose == 10 ~"Entertainment",
@@ -66,14 +89,38 @@ jou_clean <- jou %>%
     ),
     j8_purpose = factor(j8_purpose),
     
+    across(c(j9_purpose_to, j10_purpose_from), 
+           ~case_when(
+            .x == 1 ~"Work",
+            .x == 2 ~"In course work",
+            .x == 3 ~"Educational",
+            .x == 4 ~"Shopping",
+            .x == 5 ~"Personal business",
+            .x == 6 ~"Eating/drinking",
+            .x == 7 ~"Sport (April)",
+            .x == 8 ~"Sport (Watch)",
+            .x == 9 ~"Sport (Part)",
+            .x == 10 ~"Entertainment",
+            .x == 11 ~"Social",
+            .x == 12 ~"Hols April",
+            .x == 13 ~"Hols",
+            .x == 14 ~"Day-trip",
+            .x == 15 ~"Escort",
+            .x == 16 ~"Other",
+            .x == 17 ~"Home",
+            .x == 18 ~"NA",
+            .x == 19 ~"DNA"
+           )
+    ),
+    
    j11_main_transport = case_when(
      j11_main_transport == 2 ~"LT underground",
      j11_main_transport == 3 ~ "LT stage bus",
      j11_main_transport == 4 ~"Other stage bus",
-     j11_main_transport == 5 ~"LOng distance bus",
+     j11_main_transport == 5 ~"Long distance bus",
      j11_main_transport == 6 ~"Othar public transport",
-     j11_main_transport == 7 ~"Private carlvan/10rry",
-     j11_main_transport == 8 ~ "Motorcycle/scooter/mODed",
+     j11_main_transport == 7 ~"Private car/van/1orry",
+     j11_main_transport == 8 ~ "Motorcycle/scooter/moped",
      j11_main_transport == 9 ~"Bike",
     j11_main_transport ==  10 ~"Walk", 
     j11_main_transport == 11 ~"Other private tranaport",
@@ -134,6 +181,63 @@ jou_clean <- jou %>%
   ),
   j19_journey_duration = factor(j19_journey_duration),
   
+  across(c(j21_time_start, j22_time_end),
+         ~case_when(
+         .x == 1 ~"Midnight - 0059",
+         .x == 2 ~"0100 - 0159",
+         .x == 3 ~"0200 - 0259",
+         .x == 4 ~"0300 - 0359",
+         .x == 5 ~"0400 - 0459",
+         .x == 6 ~"0500 - 0559",
+         .x == 7 ~"0600 - 0629",
+         .x == 8 ~"0630 - 0659",
+         .x == 9 ~"0700 - 0714",
+         .x == 10 ~"0715 - 0729",
+         .x == 11 ~"0730 - 0744",
+         .x == 12 ~"0745 - 0759",
+         .x == 13 ~"0800 - 0814",
+         .x == 14 ~"0815 - 0829",
+         .x == 15 ~"0830 - 0844",
+         .x == 16 ~"0845 - 0859",
+         .x == 17 ~"0900 - 0914",
+         .x == 18 ~"0915 - 0929",
+         .x == 19 ~"0930 - 0959",
+         .x == 20 ~"1000 - 1029",
+         .x == 21 ~"1030 - 1059",
+         .x == 22 ~"1100 - 1129",
+         .x == 23 ~"1130 - 1159",
+         .x == 24 ~"1200 - 1229",
+         .x == 25 ~"1230 - 1259",
+         .x == 26 ~"1300 - 1329",
+         .x == 27 ~"1330 - 1359",
+         .x == 28 ~"1400 - 1429",
+         .x == 29 ~"1430 - 1459",
+         .x == 30 ~"1500 - 1529",
+         .x == 31 ~"1530 - 1559",
+         .x == 32 ~"1600 - 1629",
+         .x == 33 ~"1630 - 1644",
+         .x == 34 ~"1645 - 1659",
+         .x == 35 ~"1700 - 1714",
+         .x == 36 ~"1715 - 1729",
+         .x == 37 ~"1730 - 1744",
+         .x == 38 ~"1745 - 1759",
+         .x == 39 ~"1S00 - 1814",
+         .x == 40 ~"1815 - 1829",
+         .x == 41 ~"1830 - 1859",
+         .x == 42 ~"1900 - 1929",
+         .x == 43 ~"1930 - 1959",
+         .x == 44 ~"2000 - 2029",
+         .x == 45 ~"2030 - 2059",
+         .x == 46 ~"2100 - 2129",
+         .x == 47 ~"2130 - 2159",
+         .x == 48 ~"2200 - 2229",
+         .x == 49 ~"2230 - 2259",
+         .x == 50 ~"2300 - 2329",
+         .x == 51 ~"2330 - 2359",
+         .x == 52 ~"NA"
+         )
+         ),
+  
   j26_length_inc_shortwalk = case_when(
     j26_length_inc_shortwalk == 1 ~"Under 1 mile",
     j26_length_inc_shortwalk == 2 ~"1 to 1.9 miles",
@@ -151,8 +255,15 @@ jou_clean <- jou %>%
     j26_length_inc_shortwalk == 14 ~"DNA"
   ),
   j26_length_inc_shortwalk = factor(j26_length_inc_shortwalk)
-  )
-  
-    
-  
-    
+  ) %>%
+  rename(j27_mi_inc_shortwalk = j27,
+         j15_mi_exc_shortwalk = j15,
+         j20_mins = j20
+         ) %>%
+  mutate(j27_mi_inc_shortwalk = j27_mi_inc_shortwalk/10,
+         j15_mi_exc_shortwalk =j15_mi_exc_shortwalk/10
+         )
+
+###
+saveRDS(jou_clean, "jou_clean.RDS")
+
