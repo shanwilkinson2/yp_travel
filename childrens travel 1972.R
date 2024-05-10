@@ -15,6 +15,9 @@ ind_clean <- readRDS("ind_clean.RDS")
   jou_clean_sample <- jou_clean %>%
     filter(hholdid %in% hh_sample)
   
+  ind_clean_sample <- ind_clean %>%
+    filter(hholdid %in% hh_sample)
+  
   saveRDS(jou_clean_sample, "jou_clean_sample.RDS")
   write.csv(jou_clean_sample, "jou_clean_sample.csv")
 
