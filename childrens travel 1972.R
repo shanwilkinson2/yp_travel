@@ -5,9 +5,6 @@ library(data.table)
 
 # read in files
 
-jou_clean <- readRDS("jou_clean.RDS")
-ind_clean <- readRDS("ind_clean.RDS")
-
 ###
 
   set.seed(42)
@@ -24,8 +21,16 @@ ind_clean <- readRDS("ind_clean.RDS")
 ###
 
 # lots of times are missing ~80%
+  
+  # mostly working but not for escort trips #################
 
 jou_clean_2 <- jou_clean_sample %>%
+  # add age & gender
+  left_join(ind_clean_sample %>% 
+              select(hholdid, i1_person_id, i9_age, i10_age_sex, i11_sex, child),
+            by = c("hholdid", "i1_person_id")
+            ) %>%
+  relocate(i10_age_sex, .after = i1_person_id) %>%
   # currently not requiring multiple people 
   # so 2 journeys close together in time similar distance showing travellign with self
   mutate(
@@ -52,7 +57,8 @@ jou_clean_2 <- jou_clean_sample %>%
     right_num_people = ifelse(num_people == num_rows, TRUE, FALSE)
   ) %>%
   relocate(
-    c(trip_together, num_people, right_num_people), .after = i1_person_id)
+    c(trip_together, num_people, right_num_people), .after = i1_person_id) %>%
+  arrange(trip_together)
 
 jou_clean_2 %>% 
   group_by(trip_together) %>%

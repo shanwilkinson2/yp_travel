@@ -89,7 +89,25 @@ ind_clean = ind %>%
         i9_age = fct_relevel(i9_age, c("2 years", "3 years", "4 years", "5 years",
                            "6 years", "7 years", "8 years", "9 years"),
                     after = 1),
-        i9_age = fct_relevel(i9_age)
+        i9_age = fct_relevel(i9_age),
+        
+        i10_age_sex = case_when(
+          i10_age_sex == 1 ~"Under 3",
+          i10_age_sex == 2 ~"3 to 4",
+          i10_age_sex == 3 ~"5 to 10",
+          i10_age_sex == 4 ~"11 to 15",
+          i10_age_sex == 5 ~"Male 16 to 20",
+          i10_age_sex == 6 ~"Male 21 to 29",
+          i10_age_sex == 7 ~"Male 30 to 59",
+          i10_age_sex == 8 ~"Male 60 to 64",
+          i10_age_sex == 9 ~"Male 65 and over",
+          i10_age_sex == 10 ~"Female 16 to 20",
+          i10_age_sex == 11 ~"Female 21 to 29",
+          i10_age_sex == 12 ~"Female 30 to 59",
+          i10_age_sex == 13 ~"Female 60 to 64",
+          i10_age_sex == 14 ~"Female 65 and over",
+          i10_age_sex == 15 ~"NA"
+        )
         ) %>%
   mutate(child = ifelse(i9_age %in% c(
     "1 year and under", "2 years", "3 years", "4 years", "5 years",         
