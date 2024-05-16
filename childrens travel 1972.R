@@ -42,24 +42,49 @@ jou_clean_2 <- jou_clean_sample %>%
   # add a person trip number, to identify similar trips
   group_by(i1_person_id, 
            hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
-           j27_mi_inc_shortwalk, j8_purpose, j9_purpose_to, j10_purpose_from) %>%
+           j27_mi_inc_shortwalk, j8_purpose, j9_purpose_to, j10_purpose_from,
+           j2_land_use_origin, j4_land_use_dest) %>%
   mutate(duplicate_trip = ave(i1_person_id, FUN = seq_along)) %>%
   relocate(duplicate_trip, .after = i1_person_id) %>%
   ungroup() %>%
   # add a travelling togeether id 
   group_by(duplicate_trip,
            hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
-           j27_mi_inc_shortwalk, j8_purpose, j9_purpose_to, j10_purpose_from) %>%
+           j27_mi_inc_shortwalk, 
+           j2_land_use_origin, j4_land_use_dest
+           # j8_purpose, j9_purpose_to, j10_purpose_from
+           ) %>%
   mutate(
     trip_together = min(row_id),
     num_people = n_distinct(i1_person_id),
     num_rows = n(),
     right_num_people = ifelse(num_people == num_rows, TRUE, FALSE)
   ) %>%
+    ungroup() %>%
   relocate(
     c(trip_together, num_people, right_num_people), .after = i1_person_id) %>%
-  arrange(trip_together)
+  arrange(trip_together) %>%
+    # get escort trips
+  group_by(hholdid, j18_day_of_recording_period) %>% 
+    mutate(
+      escort_day = ifelse(j8_purpose == "Escort" | 
+                            j9_purpose_to == "Escort" | 
+                            j10_purpose_from == "Escort"
+                          , 
+        TRUE, 
+        FALSE
+      ),
+      escort_day = max(escort_day)
+      ) %>%
+    ungroup()
 
+escort_days <- jou_clean_2 %>%
+  filter(escort_day ==1 ) %>%
+  group_by(hholdid, duplicate_trip,
+           j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
+           j27_mi_inc_shortwalk, j8_purpose, j9_purpose_to, j10_purpose_from
+           )
+  
 jou_clean_2 %>% 
   group_by(trip_together) %>%
   slice(1) %>%
