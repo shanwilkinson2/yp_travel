@@ -27,9 +27,9 @@ jou_clean <- readRDS("jou_clean.RDS")
 
 # lots of times are missing ~80%
   
-  # mostly working but not for escort trips #################
-  # remove escorter who's not currently escorting from trip_together
-  # not workign if escorter doing non-escort is the first person in the trip togehter
+# picking up escort trips ok now 
+  # but people making similar trips for different purposes are travelling with themselves
+  # maybe merge in escorter? rather than seperate out?
 
 jou_clean_2 <- jou_clean_sample %>%
     mutate(unique_person_id = hholdid * 1000 + i1_person_id) %>%
@@ -61,8 +61,8 @@ jou_clean_2 <- jou_clean_sample %>%
   group_by(duplicate_trip,
            hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
            j27_mi_inc_shortwalk, 
-           j2_land_use_origin, j4_land_use_dest #,
-          # escort trips have different purpose for those being escorted
+           j2_land_use_origin, j4_land_use_dest
+          # escort trips have different purpose for those being escorted so exclude this
            # j8_purpose, j9_purpose_to, j10_purpose_from 
            ) %>%
   mutate(
@@ -77,8 +77,7 @@ jou_clean_2 <- jou_clean_sample %>%
                             j9_purpose_to == "Escort" | 
                             j10_purpose_from == "Escort"
                           , 
-        TRUE, 
-        FALSE
+        TRUE, FALSE
       ),
       escort_trip = max(escort)
       ) %>%
@@ -86,14 +85,28 @@ jou_clean_2 <- jou_clean_sample %>%
     
     group_by(trip_together, unique_person_id) %>%
       mutate(
-        escorter = ifelse(j8_purpose == "Escort" | 
-                          j9_purpose_to == "Escort" | 
-                          j10_purpose_from == "Escort"
-                        , 
-                        TRUE, 
-                        FALSE
-        )
+        escorter = max(escort)
       ) %>%
+    ungroup() %>%
+    
+    # escorter on a non escort trip
+    mutate(
+      escorter_non_escort = ifelse(
+        escort_trip == TRUE & escorter == TRUE & escort == FALSE,
+        TRUE, FALSE
+      )
+    ) %>%
+    
+    # rerun travelling together id from minimum row_id of the group
+    group_by(duplicate_trip,
+             hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
+             j27_mi_inc_shortwalk, 
+             j2_land_use_origin, j4_land_use_dest,
+             escorter_non_escort
+           ) %>%
+  mutate(
+    trip_together = min(row_id),
+    ) %>%
     ungroup() %>%
     
     # find duplicate people
@@ -103,7 +116,7 @@ jou_clean_2 <- jou_clean_sample %>%
     
     # remove escorter who's not currently escorting from trip_together
     # not workign if escorter doing non-escort is the first person in the trip togehter
-    mutate(trip_together = ifelse(escort_trip == TRUE & escorter == TRUE & escort == FALSE, 
+    mutate(trip_together = ifelse(escort_trip == 1 & escorter == TRUE & escort == FALSE, 
                   row_id, trip_together
                   ),
            ) %>%
@@ -123,11 +136,8 @@ jou_clean_2 <- jou_clean_sample %>%
   # escort days - ie days on which an escort trip was made
   # so can check if people being escorted looks right
 escort_days <- jou_clean_2 %>%
-  filter(escort_trip ==1 & right_num_people == FALSE) %>%
-  group_by(hholdid, duplicate_trip,
-           j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
-           j27_mi_inc_shortwalk, j8_purpose, j9_purpose_to, j10_purpose_from
-           )
+  filter(right_num_people ==FALSE) 
+
   
 jou_clean_2 %>% 
   group_by(trip_together) %>%
