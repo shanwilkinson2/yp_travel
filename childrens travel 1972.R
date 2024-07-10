@@ -132,9 +132,9 @@ jou_clean <- readRDS("jou_clean.RDS")
   # some people still travellign with themselves
 
   jou_clean_2 <- jou_clean_sample %>%
-    # get a unique person id including person id & household id, move to beginning
-    mutate(unique_person_id = hholdid * 1000 + i1_person_id) %>%
-    relocate(unique_person_id) %>%
+    # # get a unique person id including person id & household id, move to beginning
+    # mutate(unique_person_id = hholdid * 1000 + i1_person_id) %>%
+    # relocate(unique_person_id) %>%
     # add age & gender
     left_join(ind_clean_sample %>% 
                 select(hholdid, i1_person_id, i9_age, i10_age_sex, i11_sex, child),
@@ -147,8 +147,8 @@ jou_clean <- readRDS("jou_clean.RDS")
     ) %>%
     relocate(row_id, .before = recid) %>%
     # group by trip info plus person info
-    group_by(i1_person_id, 
-             hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
+    group_by(hholdid, i1_person_id,
+             j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
              j27_mi_inc_shortwalk, j8_purpose, j9_purpose_to, j10_purpose_from,
              j2_land_use_origin, j4_land_use_dest) %>%
     # add a person trip number, to identify similar trips 
@@ -158,8 +158,8 @@ jou_clean <- readRDS("jou_clean.RDS")
       relocate(duplicate_trip, .after = i1_person_id) %>%
     ungroup() %>%
     # add a travelling together id from minimum row_id of the group
-    group_by(duplicate_trip,
-             hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
+    group_by(duplicate_trip, hholdid, 
+             j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
              j27_mi_inc_shortwalk, 
              j2_land_use_origin, j4_land_use_dest,
              # escort trips have different purpose for those being escorted add in after
@@ -168,6 +168,7 @@ jou_clean <- readRDS("jou_clean.RDS")
       mutate(
         trip_together = min(row_id),
       ) %>%
+    relocate(trip_together, .after = duplicate_trip) %>%
     ungroup() %>%
     arrange(trip_together) %>%
     # get escort days
@@ -181,20 +182,20 @@ jou_clean <- readRDS("jou_clean.RDS")
         escort_day = max(escort)
       ) %>%
     ungroup() %>%
-    # join in escorter into escortees
-      group_by(
-               hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
-               j27_mi_inc_shortwalk, 
-               j2_land_use_origin, j4_land_use_dest,
-               # escort trips have different purpose for those being escorted add in after
-               j8_purpose, j9_purpose_to, j10_purpose_from 
-      ) %>%
-        mutate(
-          duplicate_trip_escort = ave(i1_person_id, FUN = seq_along)
-          ) %>%
-        relocate(duplicate_trip_escort, .after = duplicate_trip) %>%
-      ungroup() %>%
-        group_by(duplicate_trip_escort,
+    # check if right number of people
+    group_by(trip_together) %>%
+    mutate(
+      num_people = n_distinct(i1_person_id),
+      num_rows = n(),
+      right_num_people = ifelse(num_people == num_rows, TRUE, FALSE)
+    ) %>%
+    relocate(
+      c(trip_together, num_people, right_num_people), .after = i1_person_id) %>%
+    ungroup()
+  
+# join in escorter into escortees
+ jou_clean_3 <- jou_clean_2 %>% 
+   group_by(duplicate_trip,
           hholdid, j17_day_of_week, j21_time_start, j22_time_end, j11_main_transport, 
           j27_mi_inc_shortwalk, 
           j2_land_use_origin, j4_land_use_dest,
